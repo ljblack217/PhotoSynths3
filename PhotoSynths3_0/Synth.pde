@@ -64,6 +64,8 @@ class Knuckle {
   PVector start, end;
   ArrayList<Knuckle> children;
   boolean shifted = false;
+  float rewrap;
+  int imgID;
   Knuckle(int inMax, float in) {
     start = new PVector();
     end = new PVector();
@@ -73,10 +75,16 @@ class Knuckle {
     gAng = in;
     angle = 0;
     children = new ArrayList<Knuckle>();
+    rewrap = 0;
+    imgID = int(random(6));
   }
   void update(float light, float pAngle, PVector parent,PVector center) {
   //boolean distant = true;
     //update location
+    
+    if (rewrap>1){
+      rewrap -= 1;
+    }
     start = parent;
     angle += chAng;
     chAng = 0;
@@ -86,6 +94,7 @@ class Knuckle {
     for (Collision check : collisions) {
       if (check.pos.dist(end) < rad+check.radius) {
         shifted = true;
+        rewrap = 500;
         if (clockWise(check.pos, end, start, pAngle+angle)) {
           chAng -= radians(1);
           
@@ -94,15 +103,16 @@ class Knuckle {
           
         }
       } if (check.pos.dist(end) < rad+check.radius + 1) {
+        rewrap = 500;
         shifted = true;
       }
     } 
 
     if (shifted == false && (angle<radians(-1) || angle>radians(1))) {
       if (angle<0) {
-        chAng += radians(1);
+        chAng += radians(1/rewrap);
       } else if (angle>0) {
-        chAng -= radians(1);
+        chAng -= radians(1/rewrap);
       } 
     }
     //wrap
@@ -139,16 +149,18 @@ class Knuckle {
   }
 
   void drawKnuckle() {
-    fill(255);
-    stroke(0);
-    line(end.x, end.y, start.x, start.y);
-    ellipse(end.x, end.y, rad*2, rad*2);
-    fill(0);
     if (children.size()>0) {
       for (Knuckle child : children) {
         child.drawKnuckle();
       }
     }
+    
+    fill(255);
+    stroke(0);
+    line(end.x, end.y, start.x, start.y);
+    ellipse(end.x, end.y, rad*2, rad*2);
+    fill(0);
+    
   }
 }
 
