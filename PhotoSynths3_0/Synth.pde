@@ -56,7 +56,9 @@ class Synth {
       drawing.drawKnuckle(branchAngles.get(n));
       n++;
     }
-    image(body,pos.x, pos.y);
+    if (skin) {
+      image(body, pos.x, pos.y);
+    }
     //ellipse(width/2,height/2, 150,150);
   }
 }
@@ -131,7 +133,7 @@ class Knuckle {
       if (children.size()==0) {
         children.add(new Knuckle(max, 0));
       }
-      if (random(5000/max) < light*2 && itemCount<80) {
+      if (random(5000/max) < light*2 && itemCount<150) {
         if (children.size()<2) {
           float bAngle;
           if (coin()) {
@@ -153,14 +155,10 @@ class Knuckle {
   }
 
   void drawKnuckle(float pAngle) {
-    
 
-    
-    //fill(255);
-    //stroke(0);
-    //line(end.x, end.y, start.x, start.y);
-    //ellipse(end.x, end.y, rad*2, rad*2);
-    //fill(0);
+
+
+
     if (children.size()>0) {
       for (Knuckle child : children) {
 
@@ -168,16 +166,25 @@ class Knuckle {
       }
     }
     if (len>=1) {
-      pushMatrix();
-      translate(start.x, start.y);
-      //println(start.x, start.y);
-      rotate(pAngle+angle+gAng+radians(90));
-      PImage finger = fingers[imgID];
-     
-      //finger.resize(0, int(len));
-      float wid = len*0.352;
-      image(finger, 0, -len*1.3/2,wid*1.3,len*1.3);
-      popMatrix();
+      if (skin) {
+        pushMatrix();
+        translate(start.x, start.y);
+        //println(start.x, start.y);
+        rotate(pAngle+angle+gAng+radians(90));
+        PImage finger = fingers[imgID];
+
+        //finger.resize(0, int(len));
+        float wid = len*0.352;
+        image(finger, 0, -len*1.3/2, wid*1.3, len*1.3);
+        popMatrix();
+      } else {
+
+        fill(255);
+        stroke(0);
+        line(end.x, end.y, start.x, start.y);
+        ellipse(end.x, end.y, rad*2, rad*2);
+        fill(0);
+      }
     }
   }
 }

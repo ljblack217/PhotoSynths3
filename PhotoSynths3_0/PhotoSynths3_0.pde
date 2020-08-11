@@ -1,5 +1,5 @@
 float maxLength = 70;
-int maxK = 6;
+int maxK = 8;
 boolean grow = false;
 boolean reset = false;
 float light = 0.5;
@@ -9,7 +9,7 @@ Collision mouse;
 ArrayList <Collision> collisions;
 PImage[] fingers;
 PImage body;
-
+boolean skin = true;
 void setup() {
   imageMode(CENTER);
   fingers = new PImage[6];
@@ -18,19 +18,19 @@ void setup() {
    fingers[i].resize(0,int(maxLength*1.4));
   }
   body = loadImage("middle.png");
-   size(1280,720);
+   size(1280,720,P2D);
   
   body.resize(150,0);
   mouse = new Collision(100);
  
-  frameRate(25);
+  frameRate(50);
   main = new Synth(width/2, height/2, maxK);
   //main.updateSynth(light);
   //collisions.add(mouse);
 }
 void draw() {
-  frame.setTitle(str(frameRate));
-  background(255);
+  surface.setTitle(str(frameRate));
+  background(0);
   fill(0);
   collisions = new ArrayList<Collision>();
   mouse.update(mouseX,mouseY);
@@ -63,5 +63,11 @@ void keyPressed() {
     }
   } else if (key == 'r') {
     reset = true;
+  } else if(key == 's'){
+    if(skin){
+     skin = false; 
+    }else{
+     skin = true; 
+    }
   }
 }
