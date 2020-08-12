@@ -1,6 +1,7 @@
 import KinectPV2.*;
 import java.nio.*;
 import java.util.ArrayList;
+import beads.*;
 PImage bGround;
 
 float adjHeight;
@@ -11,7 +12,7 @@ int maxDis = 2000;
 int nY;
 int nX;
 
-
+//defaults
 float maxLength = 100;
 int maxK = 6;
 boolean grow = false;
@@ -21,10 +22,18 @@ int itemCount = 0;
 Synth main;
 Collision mouse;
 
+//assets
 PImage[] fingers;
 PImage body;
 boolean mouseOn = false;
 boolean skin = true;
+
+//audio
+AudioContext sound;
+Gain g1;
+Gain g2;
+SamplePlayer[] chew;
+SamplePlayer[] cracks;
 
 Collision[][] collisions;
 void setup() {
@@ -50,6 +59,8 @@ void setup() {
   //main.updateSynth(light);
   //collisions.add(mouse);
   setupBackground();
+  
+  audioSetup();
   
 }
 void draw() {

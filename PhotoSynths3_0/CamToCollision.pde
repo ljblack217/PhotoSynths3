@@ -42,6 +42,7 @@ void drawBackground(int[] inImg) {
   image(bGround, 0, 0, width, height);
   //println(inImg.length,bGround.pixels.length);
   bGround.loadPixels();
+  float lightCollect = 0;
   for (int x = 0; x<512; x++) {
     for (int y = 0; y<round(adjHeight); y++) {
       int loc = x+ y*512;
@@ -59,8 +60,11 @@ void drawBackground(int[] inImg) {
           collisions[xCol][yCol].present = false;
         }
         bGround.pixels[loc] = color(255);
+        lightCollect ++;
       }
     }
   }
+  light = 0.6*(lightCollect/inImg.length);
+  //println(light);
   bGround.updatePixels();
 }

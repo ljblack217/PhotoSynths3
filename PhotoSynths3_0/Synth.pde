@@ -1,10 +1,12 @@
 class Synth {
   ArrayList<Knuckle> branches;
   FloatList branchAngles;
+  IntList branchlife;
   PVector center;
   PVector  velocity, acceleration, pos;
   Synth(float x, float y, int knuckleMax) {
     branchAngles = new FloatList();
+    branchlife = new IntList();
     center = new PVector(x, y);
     pos = center.copy();
     int knStart = int(random(3)+3); 
@@ -12,16 +14,34 @@ class Synth {
     for (int s = 0; s<knStart; s++) {
       branches.add(new Knuckle(knuckleMax, 0));
       branchAngles.append(radians(((360/knStart)*s)+random(45)));
+      branchlife.append(int(random(1000, 2000)));
     }
   }
   void updateSynth(float inlight) {
     boolean shifted = false;
     int i = 0;
+    int del = -1;
     for (Knuckle current : branches) {
       //println(branchAngles.size());
       //float test = branchAngles.get(i);
       current.update(inlight, branchAngles.get(i), pos, center);
+      if (branchlife.get(i) >0) {
+        branchlife.sub(i, 1);
+      } else {
+        current.dead = true;
+        if (current.deadY>height*2.5) {
+          itemCount-= current.childrenCheck();
+          branches.set(i,new Knuckle(maxK,0));
+          branchlife.set(i, int(random(1000,2000)));
+          println("del");
+          del = i;
+        }
+      }
       i++;
+    }
+    if (del>-1){
+      
+      
     }
     if (mouseOn) {
       if (mouse.pos.dist(pos)<mouse.radius+125/2) {
@@ -92,6 +112,8 @@ class Knuckle {
   float rewrap;
   int imgID;
   boolean preTouched = false;
+  boolean dead;
+  float deadY = 0;
   Knuckle(int inMax, float in) {
     start = new PVector();
     end = new PVector();
@@ -108,15 +130,19 @@ class Knuckle {
     //boolean distant = true;
     //update location
 
-    if (rewrap>1) {
+    if (rewrap>2) {
       rewrap -= 1;
     }
-    start = parent;
+    start = parent.copy();
+    start.y += deadY;
 
     angle += chAng;
     if (preTouched == false) {
       chAng = 0;
+    } else {
+      touchSound();
     }
+    if (dead) deadY = deadY*1.1 + 1;
     end.x = start.x + cos(pAngle+angle+gAng) * len;
     end.y = start.y + sin(pAngle+angle+gAng) * len;
     //collision
@@ -128,6 +154,7 @@ class Knuckle {
             shifted = true;
             rewrap = 250;
             if (preTouched == false) {
+
               if (clockWise(collisions[x][y].pos, end, start, pAngle+angle)) {
                 chAng -= radians(1);
               } else {
@@ -146,17 +173,13 @@ class Knuckle {
     preTouched = touched;
 
     if (shifted == false && (angle<radians(-1) || angle>radians(1))) {
+      if (rewrap <20 ) retreat();
       if (angle<0) {
         chAng += radians(1/rewrap);
       } else if (angle>0) {
         chAng -= radians(1/rewrap);
       }
     }
-    //wrap
-
-
-
-
     //grow
     if (len<maxLength) {
       len += light;
@@ -217,6 +240,16 @@ class Knuckle {
         fill(0);
       }
     }
+  }
+  int childrenCheck() {
+    int num = 0;
+    if (children.size()>0) {
+      for (Knuckle child : children) {
+        num = num + child.childrenCheck();
+        num ++;
+      }
+    }
+    return num;
   }
 }
 
