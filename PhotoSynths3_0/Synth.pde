@@ -23,19 +23,37 @@ class Synth {
       current.update(inlight, branchAngles.get(i), pos, center);
       i++;
     }
-    for (Collision check : collisions) {
-      if (check.pos.dist(pos)<check.radius+125/2) {
+    if (mouseOn) {
+      if (mouse.pos.dist(pos)<mouse.radius+125/2) {
         PVector move = new PVector(1, 0);
         PVector repos = new PVector();
         repos = pos.copy();
-        repos.sub(check.pos);
+        repos.sub(mouse.pos);
         move.rotate(repos.heading());
         pos.add(move);
         shifted = true;
-      } else if (check.pos.dist(pos)<check.radius + 1) {
+      } else if (mouse.pos.dist(pos)<mouse.radius + 1) {
         shifted = true;
       }
     }
+    for (int x = 0; x<nX; x++) {
+      for (int y = 0; y<nY; y++) {
+        if (collisions[x][y].present == true) {
+          if (collisions[x][y].pos.dist(pos) < 120+collisions[x][y].radius) {
+            PVector move = new PVector(1, 0);
+            PVector repos = new PVector();
+            repos = pos.copy();
+            repos.sub(collisions[x][y].pos);
+            move.rotate(repos.heading());
+            pos.add(move);
+            shifted = true;
+          } else if ((collisions[x][y].pos.dist(pos) < 120+collisions[x][y].radius+1)) {
+            shifted = true;
+          }
+        }
+      }
+    }
+
     if (shifted != true) {
       //println(pos.dist(center)); 
       if (pos.dist(center)>2) {
@@ -66,13 +84,14 @@ class Synth {
 class Knuckle {
   float angle, gAng, chAng;
   float len;
-  float rad = 10;
+  float rad = 16;
   int max;
   PVector start, end;
   ArrayList<Knuckle> children;
   boolean shifted = false;
   float rewrap;
   int imgID;
+  boolean preTouched = false;
   Knuckle(int inMax, float in) {
     start = new PVector();
     end = new PVector();
@@ -93,26 +112,38 @@ class Knuckle {
       rewrap -= 1;
     }
     start = parent;
+
     angle += chAng;
-    chAng = 0;
+    if (preTouched == false) {
+      chAng = 0;
+    }
     end.x = start.x + cos(pAngle+angle+gAng) * len;
     end.y = start.y + sin(pAngle+angle+gAng) * len;
     //collision
-    for (Collision check : collisions) {
-      if (check.pos.dist(end) < rad+check.radius) {
-        shifted = true;
-        rewrap = 250;
-        if (clockWise(check.pos, end, start, pAngle+angle)) {
-          chAng -= radians(1);
-        } else {
-          chAng += radians(1);
+    boolean touched = false;
+    for (int x = 0; x<nX; x++) {
+      for (int y = 0; y<nY; y++) {
+        if (collisions[x][y].present == true) {
+          if (collisions[x][y].pos.dist(end) < rad+collisions[x][y].radius) {
+            shifted = true;
+            rewrap = 250;
+            if (preTouched == false) {
+              if (clockWise(collisions[x][y].pos, end, start, pAngle+angle)) {
+                chAng -= radians(1);
+              } else {
+                chAng += radians(1);
+              }
+            }
+            touched = true;
+          } 
+          if (collisions[x][y].pos.dist(end) < rad+collisions[x][y].radius + 1) {
+            rewrap = 500;
+            shifted = true;
+          }
         }
-      } 
-      if (check.pos.dist(end) < rad+check.radius + 1) {
-        rewrap = 500;
-        shifted = true;
       }
     } 
+    preTouched = touched;
 
     if (shifted == false && (angle<radians(-1) || angle>radians(1))) {
       if (angle<0) {
@@ -130,10 +161,10 @@ class Knuckle {
     if (len<maxLength) {
       len += light;
     } else if (max>0) {
-      if (children.size()==0) {
+      if (children.size()==0 && itemCount<70) {
         children.add(new Knuckle(max, 0));
       }
-      if (random(5000/max) < light*2 && itemCount<150) {
+      if (random(5000/max) < light*2 && itemCount<70) {
         if (children.size()<2) {
           float bAngle;
           if (coin()) {
@@ -155,7 +186,7 @@ class Knuckle {
   }
 
   void drawKnuckle(float pAngle) {
-
+    imageMode(CENTER);
 
 
 
