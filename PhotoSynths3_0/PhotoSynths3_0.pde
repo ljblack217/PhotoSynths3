@@ -32,6 +32,9 @@ boolean skin = true;
 AudioContext sound;
 Gain g1;
 Gain g2;
+Gain g3;
+
+SamplePlayer crunch;
 SamplePlayer[] chew;
 SamplePlayer[] cracks;
 
@@ -49,8 +52,8 @@ void setup() {
     fingers[i].resize(0, int(maxLength*1.4));
   }
   body = loadImage("middle.png");
-  size(1280, 720, P2D);
-
+  //size(1280, 720, P3D);
+  fullScreen(P2D);
   body.resize(150, 0);
   mouse = new Collision(100);
 

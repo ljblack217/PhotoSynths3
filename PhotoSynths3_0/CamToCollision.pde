@@ -49,7 +49,7 @@ void drawBackground(int[] inImg) {
       int dpth = inImg[loc];
       int xCol = int(map(x, 0, 512, 0, nX-1));
       int yCol = int(map(y, 0, adjHeight, 0, nY-1));
-      if (dpth < 2000) { 
+      if (dpth < 3500 && dpth>50) { 
         if (x%32 == 0 && y%32 == 0) {
           collisions[xCol][yCol].present = true;
         }

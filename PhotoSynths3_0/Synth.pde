@@ -9,12 +9,12 @@ class Synth {
     branchlife = new IntList();
     center = new PVector(x, y);
     pos = center.copy();
-    int knStart = int(random(3)+3); 
+    int knStart = 5; 
     branches = new ArrayList<Knuckle>();
     for (int s = 0; s<knStart; s++) {
       branches.add(new Knuckle(knuckleMax, 0));
       branchAngles.append(radians(((360/knStart)*s)+random(45)));
-      branchlife.append(int(random(1000, 2000)));
+      branchlife.append(int(random(50*frameRate, 200*frameRate)));
     }
   }
   void updateSynth(float inlight) {
@@ -30,18 +30,19 @@ class Synth {
       } else {
         current.dead = true;
         if (current.deadY>height*2.5) {
-          itemCount-= current.childrenCheck();
-          branches.set(i,new Knuckle(maxK,0));
-          branchlife.set(i, int(random(1000,2000)));
+          println(current.childrenCheck(), itemCount);
+          itemCount -= current.childrenCheck()+1;
+          println(itemCount);
+          branches.set(i, new Knuckle(maxK, 0));
+          branchAngles.set(i, radians(((360/5)*i )+random(45)));
+          branchlife.set(i, int(random(40*frameRate, 160*frameRate)));
           println("del");
           del = i;
         }
       }
       i++;
     }
-    if (del>-1){
-      
-      
+    if (del>-1) {
     }
     if (mouseOn) {
       if (mouse.pos.dist(pos)<mouse.radius+125/2) {
@@ -114,6 +115,7 @@ class Knuckle {
   boolean preTouched = false;
   boolean dead;
   float deadY = 0;
+  boolean dead1 = true;
   Knuckle(int inMax, float in) {
     start = new PVector();
     end = new PVector();
@@ -142,7 +144,13 @@ class Knuckle {
     } else {
       touchSound();
     }
-    if (dead) deadY = deadY*1.1 + 1;
+    if (dead) { 
+      deadY = deadY*1.1 + 1;
+      if (dead1) {
+        dead1 = false;
+        crunchPlay();
+      }
+    }
     end.x = start.x + cos(pAngle+angle+gAng) * len;
     end.y = start.y + sin(pAngle+angle+gAng) * len;
     //collision
@@ -210,15 +218,15 @@ class Knuckle {
 
   void drawKnuckle(float pAngle) {
     imageMode(CENTER);
-
-
-
     if (children.size()>0) {
       for (Knuckle child : children) {
 
         child.drawKnuckle(pAngle+angle+gAng);
       }
     }
+
+
+
     if (len>=1) {
       if (skin) {
         pushMatrix();
